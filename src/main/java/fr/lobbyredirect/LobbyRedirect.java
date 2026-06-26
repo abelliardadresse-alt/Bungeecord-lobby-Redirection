@@ -12,8 +12,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import fr.lobbyredirect.commands.LobbyRedirectCommand;
 import fr.lobbyredirect.listeners.PlayerListener;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,16 +70,10 @@ public class LobbyRedirect extends JavaPlugin implements Listener {
                 player.sendMessage(colorize(message));
             }
             
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (DataOutputStream dos = new DataOutputStream(baos)) {
-                dos.writeUTF("Connect");
-                dos.writeUTF(lobbyServer);
-            } catch (java.io.IOException e) {
-                getLogger().warning("Erreur lors de la redirection: " + e.getMessage());
-                return;
-            }
-            
-            player.sendPluginMessage(this, "BungeeCord", baos.toByteArray());
+            // Exécuter la commande /server <lobby> pour le joueur
+            Bukkit.getScheduler().runTask(this, () -> {
+                player.performCommand("server " + lobbyServer);
+            });
         } else {
             String kickMessage = getConfig().getString("kick-message", "Serveur en maintenance");
             player.kickPlayer(colorize(kickMessage));
@@ -91,10 +83,15 @@ public class LobbyRedirect extends JavaPlugin implements Listener {
     public void redirectAllPlayersToLobby() {
         isShuttingDown = true;
         
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        // Récupérer la liste des joueurs avant de les rediriger
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        
+        for (Player player : players) {
             if (hasBypassPermission(player)) {
+                getLogger().info("Joueur " + player.getName() + " bypass la redirection");
                 continue;
             }
+            getLogger().info("Redirection de " + player.getName() + " vers " + getConfig().getString("lobby-server", "lobby"));
             redirectToLobby(player);
         }
     }
@@ -109,9 +106,20 @@ public class LobbyRedirect extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onServerCommand(ServerCommandEvent event) {
         String command = event.getCommand().toLowerCase();
-        if (!isShuttingDown && (command.equals("stop") || command.startsWith("stop "))) {
-            getLogger().info("Détection de la commande stop, redirection des joueurs...");
+        if (!isShuttingDown && command.equals("stop")) {
+            getLogger().info("Détection de la commande /stop, redirection des joueurs vers le lobby...");
+            
+            // Annuler la commande stop pour laisser le temps à la redirection
+            event.setCancelled(true);
+            
+            // Rediriger tous les joueurs
             redirectAllPlayersToLobby();
+            
+            // Programmer l'arrêt du serveur après un délai
+            Bukkit.getScheduler().runTaskLater(this, () -> {
+                getLogger().info("Arrêt du serveur après redirection...");
+                Bukkit.shutdown();
+            }, 60L); // 3 secondes de délai
         }
     }
 
