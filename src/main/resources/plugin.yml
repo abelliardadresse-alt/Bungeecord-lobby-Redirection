@@ -1,0 +1,17 @@
+name: LobbyRedirect
+version: '${project.version}'
+main: fr.lobbyredirect.LobbyRedirect
+api-version: '1.21'
+author: LobbyRedirect
+description: Redirige les joueurs vers le lobby lors de la fermeture du serveur
+website: https://github.com/lobbyredirect
+
+commands:
+  lobbyredirect:
+    description: Commandes du plugin LobbyRedirect
+    permission: lobbyredirect.admin
+
+permissions:
+  lobbyredirect.admin:
+    description: Accès aux commandes d'administration
+    default: op

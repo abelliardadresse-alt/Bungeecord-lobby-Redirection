@@ -1,0 +1,36 @@
+# ============================================
+#        LobbyRedirect - Configuration
+# ============================================
+# Plugin compatible BungeeCord pour rediriger
+# les joueurs vers le lobby à la fermeture
+# ============================================
+
+# Le nom du serveur lobby dans BungeeCord
+# (doit correspondre au nom dans config.yml de BungeeCord)
+lobby-server: "lobby"
+
+# Message envoyé aux joueurs avant la redirection (vide pour désactiver)
+# Supports color codes: &a, &b, &c, etc.
+redirect-message: "&6[Server] &eLe serveur va fermer, redirection vers le lobby..."
+
+# Délai en ticks avant la redirection (20 ticks = 1 seconde)
+# Les joueurs seront redirigés dans l'ordre de déconnexion
+redirect-delay: 20
+
+# Si true, kick les joueurs avec un message au lieu de les rediriger
+# Utile si le serveur est en cours d'arrêt complet
+kick-instead-of-redirect: false
+
+# Message de kick (si kick-instead-of-redirect est true)
+kick-message: "&6[Server] &eLe serveur est actuellement en maintenance.\n&eMerci de revenir plus tard."
+
+# Si true, seul les joueurs avec la permission lobbyredirect.bypass
+# seront redirigés (les autres seront kick)
+# Par défaut, tout le monde est redirigé
+bypass-permission: false
+
+# Monde initial (optionnel - pour référence)
+# initial-worlds:
+#   - "world"
+#   - "world_nether"
+#   - "world_the_end"
